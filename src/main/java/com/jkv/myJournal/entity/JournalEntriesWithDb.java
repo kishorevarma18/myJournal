@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+/*
+The Entity is the "suitcase" that carries the data through every single layer.
+Without the Entity, the layers would have nothing to pass to one another.
+*/
+
 
 /**
  * @Document identifies this class as a domain object to be persisted to MongoDB.
