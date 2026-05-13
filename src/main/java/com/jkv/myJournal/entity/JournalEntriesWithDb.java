@@ -10,6 +10,10 @@ The Entity is the "suitcase" that carries the data through every single layer.
 Without the Entity, the layers would have nothing to pass to one another.
 */
 
+import lombok.Data;
+// import lombok.Getter;
+// import lombok.Setter;
+
 
 /**
  * @Document identifies this class as a domain object to be persisted to MongoDB.
@@ -17,6 +21,20 @@ Without the Entity, the layers would have nothing to pass to one another.
  * where these objects will be stored.
  */
 @Document(collection = "journal_entries")
+/**
+ * @Getter and @Setter: These generate the standard getField() and setField() 
+ * methods for all fields in the class at compile-time.
+ */
+// @Getter@Setter
+/**
+ * @Data: The "All-In-One" Lombok power-tool.
+ * It automatically triggers:
+ * 1. @Getter and @Setter (making your manual @Getter/@Setter annotations above redundant).
+ * 2. @ToString (allows you to print the object and see its actual data).
+ * 3. @EqualsAndHashCode (useful for comparing two objects).
+ * 4. @RequiredArgsConstructor (creates a constructor for any final fields).
+ */
+@Data
 public class JournalEntriesWithDb {
     /**
      * @Id designates this field as the primary key.
@@ -27,30 +45,4 @@ public class JournalEntriesWithDb {
     private String name;
     private String content;
     private LocalDateTime date;
-    //getters
-    public ObjectId getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public String getContent() {
-        return content;
-    }
-    public LocalDateTime getDate() {
-        return date;
-    }
-    //setters
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setContent(String content) {
-        this.content = content;
-    }
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
 }
