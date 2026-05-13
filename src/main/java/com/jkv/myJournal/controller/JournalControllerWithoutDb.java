@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.*;
-import com.jkv.myJournal.entity.JournalEntriesWithoutDb;
+import com.jkv.myJournal.entity.JournalEntityWithoutDb;
 
 /**
  * @RestController: Marks this class as a Web Controller. 
@@ -26,7 +26,7 @@ public class JournalControllerWithoutDb {
      * 2. Key Uniqueness: Maps naturally prevent duplicate IDs.
      * 3. Easy Updates: map.put(id, entry) automatically replaces old data if the ID exists.
      */
-    private Map<Long, JournalEntriesWithoutDb> journalEntriesMap = new HashMap<>();
+    private Map<Long, JournalEntityWithoutDb> journalEntriesMap = new HashMap<>();
 
     /**
      * @PostMapping: Maps HTTP POST requests to this method. 
@@ -36,7 +36,7 @@ public class JournalControllerWithoutDb {
      * request body into the 'JournalEntries' object.
      */
     @PostMapping
-    public Boolean postEntry(@RequestBody JournalEntriesWithoutDb entry) {
+    public Boolean postEntry(@RequestBody JournalEntityWithoutDb entry) {
         journalEntriesMap.put(entry.getId(), entry);
         return true;
     }
@@ -46,7 +46,7 @@ public class JournalControllerWithoutDb {
      * Used to READ or retrieve data.
      */
     @GetMapping
-    public List<JournalEntriesWithoutDb> getAll() {
+    public List<JournalEntityWithoutDb> getAll() {
         return new ArrayList<>(journalEntriesMap.values());
     }
     /**
@@ -77,9 +77,9 @@ public class JournalControllerWithoutDb {
      * Unlike PathVariable, this is used for filtering or optional parameters.
      */
     @GetMapping("/search")
-    public List<JournalEntriesWithoutDb> getEntryByParam(@RequestParam Long id) {
-        List<JournalEntriesWithoutDb> list = new ArrayList<>();
-        JournalEntriesWithoutDb entry = journalEntriesMap.get(id);
+    public List<JournalEntityWithoutDb> getEntryByParam(@RequestParam Long id) {
+        List<JournalEntityWithoutDb> list = new ArrayList<>();
+        JournalEntityWithoutDb entry = journalEntriesMap.get(id);
         if (entry != null) {
             list.add(entry);
         }
@@ -91,7 +91,7 @@ public class JournalControllerWithoutDb {
      * Used to UPDATE an existing resource or replace it.
      */
     @PutMapping("/id/{myId}")
-    public boolean putEntry(@RequestBody JournalEntriesWithoutDb entry, @PathVariable long myId) {
+    public boolean putEntry(@RequestBody JournalEntityWithoutDb entry, @PathVariable long myId) {
         journalEntriesMap.put(myId, entry);
         return true;
     }

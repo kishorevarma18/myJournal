@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.jkv.myJournal.entity.JournalEntriesWithDb;
+import com.jkv.myJournal.entity.JournalEntityWithDb;
 import com.jkv.myJournal.repository.JournalRepository;
 import com.jkv.myJournal.service.JournalService;
 
@@ -25,19 +25,19 @@ public class JournalServiceImpl implements JournalService {
     private JournalRepository journalRepository; // Injecting the Database "Librarian"
 
     @Override
-    public void saveEntry(JournalEntriesWithDb journalEntry){
+    public void saveEntry(JournalEntityWithDb journalEntry){
         // Adding business logic: Automatically set the current server time before saving
         journalEntry.setDate(LocalDateTime.now());
         journalRepository.save(journalEntry);
     }
 
     @Override
-    public List<JournalEntriesWithDb> getAll(){
+    public List<JournalEntityWithDb> getAll(){
         return journalRepository.findAll();
     }
 
     @Override
-    public Optional<JournalEntriesWithDb> getById(String id){
+    public Optional<JournalEntityWithDb> getById(String id){
         // Safety check: Ensure the string is a valid MongoDB ObjectId format
         if(ObjectId.isValid(id)){
             return journalRepository.findById(new ObjectId(id));
@@ -55,11 +55,11 @@ public class JournalServiceImpl implements JournalService {
     }
 
     @Override
-    public JournalEntriesWithDb putById(String id, JournalEntriesWithDb newJournalEntry){
+    public JournalEntityWithDb putById(String id, JournalEntityWithDb newJournalEntry){
         // Logic for "Partial Updates": 
         // 1. Find existing record.
         // 2. If new data is provided, overwrite; otherwise, keep the old data.
-        JournalEntriesWithDb oldJournalEntry = journalRepository.findById(new ObjectId(id)).orElse(null);
+        JournalEntityWithDb oldJournalEntry = journalRepository.findById(new ObjectId(id)).orElse(null);
         
         if(ObjectId.isValid(id) && oldJournalEntry != null){
             // Check if name is provided and not empty

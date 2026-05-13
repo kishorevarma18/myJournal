@@ -3,14 +3,14 @@ package com.jkv.myJournal.repository;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import com.jkv.myJournal.entity.JournalEntriesWithDb;
+import com.jkv.myJournal.entity.JournalEntityWithDb;
 
 /**
  * @Repository tells Spring to manage this interface as a bean. 
  * It acts as the Data Access Layer of your application.
  */
 @Repository
-public interface JournalRepository extends MongoRepository<JournalEntriesWithDb, ObjectId> {
+public interface JournalRepository extends MongoRepository<JournalEntityWithDb, ObjectId> {
     
     /* 
        By extending MongoRepository, you inherit a full suite of CRUD operations 

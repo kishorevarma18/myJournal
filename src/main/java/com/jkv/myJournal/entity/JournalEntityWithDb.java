@@ -35,7 +35,7 @@ import lombok.Data;
  * 4. @RequiredArgsConstructor (creates a constructor for any final fields).
  */
 @Data
-public class JournalEntriesWithDb {
+public class JournalEntityWithDb {
     /**
      * @Id designates this field as the primary key.
      * Spring Data maps this 'id' field to the '_id' field in the MongoDB document.

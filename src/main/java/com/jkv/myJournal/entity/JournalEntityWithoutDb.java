@@ -1,6 +1,6 @@
 package com.jkv.myJournal.entity;
 
-public class JournalEntriesWithoutDb {
+public class JournalEntityWithoutDb {
     private Long id;
     private String name;
     private String content;

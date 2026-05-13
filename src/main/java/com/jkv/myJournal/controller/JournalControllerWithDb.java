@@ -1,7 +1,7 @@
 package com.jkv.myJournal.controller;
 
 import org.springframework.web.bind.annotation.*;
-import com.jkv.myJournal.entity.JournalEntriesWithDb;
+import com.jkv.myJournal.entity.JournalEntityWithDb;
 import com.jkv.myJournal.service.JournalService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class JournalControllerWithDb {
      */
     // POST http://localhost:8080/JournalWithDb
     @PostMapping
-    public ResponseEntity<?> postEntry(@RequestBody JournalEntriesWithDb journalEntryWithDb) {
+    public ResponseEntity<?> postEntry(@RequestBody JournalEntityWithDb journalEntryWithDb) {
         // @RequestBody converts the JSON input from the user into a Java Object
         if(journalEntryWithDb != null){
             journalService.saveEntry(journalEntryWithDb);
@@ -92,7 +92,7 @@ public class JournalControllerWithDb {
     
     // PUT http://localhost:8080/JournalWithDb/search?id=12345
     @PutMapping("/search")
-    public ResponseEntity<?> putById(@RequestParam String id, @RequestBody JournalEntriesWithDb entity) {
+    public ResponseEntity<?> putById(@RequestParam String id, @RequestBody JournalEntityWithDb entity) {
         // @RequestParam looks for '?id=' in the URL query string
         if(id != null && !id.equals("") && !id.equals(" ")){
             return ResponseEntity.status(HttpStatus.OK).body(journalService.putById(id, entity));
