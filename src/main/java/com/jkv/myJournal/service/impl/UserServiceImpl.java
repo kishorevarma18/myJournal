@@ -17,10 +17,26 @@ import lombok.NonNull;
 public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
+
+    /**
+     * Why @NonNull is used here:
+     * 1. Spring Data Repositories (userRepository) are strictly typed to not accept nulls.
+     * 2. Since this method simply "passes through" the userEntity to the repository, 
+     *    the IDE sees a risk: "What if userEntity is null?"
+     * 3. Lombok's @NonNull adds a hidden 'if (userEntity == null) throw NPE' check 
+     *    at the start. This "proves" to the IDE that the value is safe before it 
+     *    reaches userRepository.save(), thus clearing the warning.
+     */
     @Override
     public void saveAll(@NonNull UserEntity userEntity) {
         userRepository.save(userEntity);
     }
+    // Alternative - if we can check object is not null before passing to save method, it doesn't give any warning.
+    // @Override
+    // public void saveAll(UserEntity userEntity) {
+    //     if(userEntity!=null)
+    //     userRepository.save(userEntity);
+    // }
 
     @Override
     public List<UserEntity> getAll() {

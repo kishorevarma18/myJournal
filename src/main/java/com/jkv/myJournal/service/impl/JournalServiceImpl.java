@@ -36,6 +36,7 @@ public class JournalServiceImpl implements JournalService {
         if(user == null)
             throw new RuntimeException("User not found with username: "+userName);
         journalEntry.setDate(LocalDateTime.now());
+        // since the above method checks for null and doesn't allow null value. we don't have to explicitly provide @NonNull.
         JournalEntityWithDb saved = journalRepository.save(journalEntry);
         user.getJournalEntries().add(saved);
         userService.saveAll(user);
