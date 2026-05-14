@@ -11,9 +11,9 @@ import com.jkv.myJournal.entity.JournalEntityWithDb;
  * Contains the core business logic, data processing, and coordination between the controller and the repository.
  */
 public interface JournalService {
-    void saveEntry(JournalEntityWithDb journalEntry);
-    List<JournalEntityWithDb> getAll();
+    void saveEntry(JournalEntityWithDb journalEntry, String userName);
+    List<JournalEntityWithDb> getAll(String userName);
     Optional<JournalEntityWithDb> getById(String id);
-    boolean deleteById(String id);
-    JournalEntityWithDb putById(String id, JournalEntityWithDb journalEntry);
+    boolean deleteById(String id, String userName);
+    JournalEntityWithDb putById(String id, JournalEntityWithDb journalEntry, String userName);
 }

@@ -7,8 +7,10 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.jkv.myJournal.entity.JournalEntityWithDb;
+import com.jkv.myJournal.entity.UserEntity;
 import com.jkv.myJournal.repository.JournalRepository;
 import com.jkv.myJournal.service.JournalService;
+import com.jkv.myJournal.service.UserService;
 
 /*
 Holds the actual code implementation for the methods defined in the Service interface.
@@ -24,16 +26,27 @@ public class JournalServiceImpl implements JournalService {
     @Autowired
     private JournalRepository journalRepository; // Injecting the Database "Librarian"
 
+    @Autowired
+    private UserService userService;
+
     @Override
-    public void saveEntry(JournalEntityWithDb journalEntry){
+    public void saveEntry(JournalEntityWithDb journalEntry, String userName){
         // Adding business logic: Automatically set the current server time before saving
+        UserEntity user = userService.getByUserName(userName);
+        if(user == null)
+            throw new RuntimeException("User not found with username: "+userName);
         journalEntry.setDate(LocalDateTime.now());
-        journalRepository.save(journalEntry);
+        JournalEntityWithDb saved = journalRepository.save(journalEntry);
+        user.getJournalEntries().add(saved);
+        userService.saveAll(user);
     }
 
     @Override
-    public List<JournalEntityWithDb> getAll(){
-        return journalRepository.findAll();
+    public List<JournalEntityWithDb> getAll(String userName){
+        UserEntity user = userService.getByUserName(userName);
+        if(user == null)
+            throw new RuntimeException("User not found with username: "+userName);
+        return user.getJournalEntries();
     }
 
     @Override
@@ -46,21 +59,30 @@ public class JournalServiceImpl implements JournalService {
     }
 
     @Override
-    public boolean deleteById(String id){
-        if(ObjectId.isValid(id)){
-            journalRepository.deleteById(new ObjectId(id));
-            return true;
+    public boolean deleteById(String id,String userName){
+        UserEntity user = userService.getByUserName(userName);
+        if(!ObjectId.isValid(id)){
+            return false;
         }
-        return false;
+        if(user == null){
+            throw new RuntimeException("user not found with username: "+userName);
+        }
+        journalRepository.deleteById(new ObjectId(id));
+        user.getJournalEntries().removeIf(entry->entry.getId().equals(new ObjectId(id)));
+        userService.saveAll(user);
+        return true;
     }
 
     @Override
-    public JournalEntityWithDb putById(String id, JournalEntityWithDb newJournalEntry){
+    public JournalEntityWithDb putById(String id, JournalEntityWithDb newJournalEntry, String userName){
         // Logic for "Partial Updates": 
         // 1. Find existing record.
         // 2. If new data is provided, overwrite; otherwise, keep the old data.
         JournalEntityWithDb oldJournalEntry = journalRepository.findById(new ObjectId(id)).orElse(null);
-        
+        UserEntity user = userService.getByUserName(userName);
+        if(user == null){
+            throw new RuntimeException("user not found for username: "+userName);
+        }
         if(ObjectId.isValid(id) && oldJournalEntry != null){
             // Check if name is provided and not empty
             oldJournalEntry.setName(newJournalEntry.getName() != null && !newJournalEntry.getName().equals("") 
@@ -69,7 +91,6 @@ public class JournalServiceImpl implements JournalService {
             // Check if content is provided and not empty
             oldJournalEntry.setContent(newJournalEntry.getContent() != null && !newJournalEntry.getContent().equals("") 
                 ? newJournalEntry.getContent() : oldJournalEntry.getContent());
-
             return journalRepository.save(oldJournalEntry); // Save the merged object
         }
         return null;

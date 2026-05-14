@@ -34,14 +34,25 @@ public class JournalControllerWithDb {
      * .body(Object): Sets the data returned to the client (usually converted to JSON).
      */
     // POST http://localhost:8080/JournalWithDb
-    @PostMapping
-    public ResponseEntity<?> postEntry(@RequestBody JournalEntityWithDb journalEntryWithDb) {
+    @PostMapping("/{userName}")
+    public ResponseEntity<?> postEntry(@PathVariable String userName,@RequestBody JournalEntityWithDb journalEntryWithDb) {
         // @RequestBody converts the JSON input from the user into a Java Object
-        if(journalEntryWithDb != null){
-            journalService.saveEntry(journalEntryWithDb);
+        if(journalEntryWithDb == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body can't be empty!");
+        }
+        try{
+            journalService.saveEntry(journalEntryWithDb,userName);
             return ResponseEntity.status(200).body(journalEntryWithDb);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body can't be empty!");
+        catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occured");
+        }
+            
+        
+        
     }
     //the inward path -- Controller → Service → Repository → DB
 
@@ -51,13 +62,21 @@ public class JournalControllerWithDb {
      * It "builds" the ResponseEntity without a payload.
      */
     // GET http://localhost:8080/JournalWithDb
-    @GetMapping
-    public ResponseEntity<?> getAllEntries() {
-        if(journalService.getAll() != null){
-           return ResponseEntity.status(HttpStatus.OK).body(journalService.getAll());
+    @GetMapping("/{userName}")
+    public ResponseEntity<?> getAllEntries(@PathVariable String userName) {
+        try{
+            if(journalService.getAll(userName).isEmpty()){
+                // .build() is used here because NO_CONTENT (204) technically shouldn't have a body.
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(journalService.getAll(userName));
         }
-         // .build() is used here because NO_CONTENT (204) technically shouldn't have a body.
-         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occured");
+        }
     }
     // the outward path -- DB → Repository → Service → Controller
     
@@ -81,22 +100,43 @@ public class JournalControllerWithDb {
     }
     
     // DELETE http://localhost:8080/JournalWithDb/id/12345
-    @DeleteMapping({"/id/{myId}","/id/"})
-    public ResponseEntity<?> deleteEntryById(@PathVariable(required=false) String myId){
+    @DeleteMapping({"/{userName}/id/{myId}","/{userName}/id/"})
+    public ResponseEntity<?> deleteEntryById(@PathVariable(required=false) String myId, @PathVariable String userName){
         // Better practice: Use StringUtils.hasText(myId) here too for consistency!
-        if(myId != null && !myId.equals("") && !myId.equals(" ")){
-            return ResponseEntity.status(HttpStatus.OK).body(journalService.deleteById(myId));
+        try{
+            if(myId != null && !myId.equals("") && !myId.equals(" ")){
+                return ResponseEntity.status(HttpStatus.OK).body(journalService.deleteById(myId,userName));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id can't be null or empty");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id can't be null or empty");
+        catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occured");
+        }
     }
     
     // PUT http://localhost:8080/JournalWithDb/search?id=12345
-    @PutMapping("/search")
-    public ResponseEntity<?> putById(@RequestParam String id, @RequestBody JournalEntityWithDb entity) {
+    @PutMapping("/search/{userName}")
+    public ResponseEntity<?> putById(@RequestParam String id, @RequestBody JournalEntityWithDb entity, @PathVariable String userName) {
         // @RequestParam looks for '?id=' in the URL query string
-        if(id != null && !id.equals("") && !id.equals(" ")){
-            return ResponseEntity.status(HttpStatus.OK).body(journalService.putById(id, entity));
+        try{
+            if(entity == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("body can't be null or empty");
+            }
+            else if(id != null && !id.equals("") && !id.equals(" ")){
+            return ResponseEntity.status(HttpStatus.OK).body(journalService.putById(id, entity,userName));
+            }
+            else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id can't be null or empty");
+            }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id can't be null or empty");
+        catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occured");
+        }
     }
 }
