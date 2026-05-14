@@ -57,8 +57,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Boolean updateByName(String name, UserEntity newUser) {
-        UserEntity oldUser = userRepository.getByUserName(name);
+    public Boolean updateByName(String userName, UserEntity newUser) {
+        UserEntity oldUser = userRepository.getByUserName(userName);
         if(oldUser!=null){
             oldUser.setUserName((newUser.getUserName()!=null && !newUser.getUserName().equals(""))?newUser.getUserName():oldUser.getUserName());
             oldUser.setUserPassword((newUser.getUserPassword()!=null && !newUser.getUserPassword().equals(""))?newUser.getUserPassword():oldUser.getUserPassword());
@@ -66,5 +66,10 @@ public class UserServiceImpl implements UserService{
             return true;
         }
         return false;
+    }
+
+    @Override
+    public UserEntity getByUserName(String userName) {
+        return userRepository.getByUserName(userName);
     }
 }
