@@ -126,7 +126,10 @@ public class JournalControllerWithDb {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("body can't be null or empty");
             }
             else if(id != null && !id.equals("") && !id.equals(" ")){
-            return ResponseEntity.status(HttpStatus.OK).body(journalService.putById(id, entity,userName));
+                if(journalService.putById(id, entity, userName)==null){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id not matched!");
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(journalService.putById(id, entity,userName));
             }
             else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id can't be null or empty");
