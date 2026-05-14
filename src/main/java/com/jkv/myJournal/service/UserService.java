@@ -11,5 +11,6 @@ public interface UserService {
     Optional<UserEntity> getById(String id);
     Boolean deleteById(String id);
     Boolean updateById(String id, UserEntity userEntity);
-    Boolean updateByName(String name, UserEntity userEntity);
+    Boolean updateByName(String userName, UserEntity userEntity);
+    UserEntity getByUserName(String userName);
 }
