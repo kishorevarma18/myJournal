@@ -9,8 +9,9 @@ public interface UserService {
     void saveAll(UserEntity userEntity);
     List<UserEntity> getAll();
     Optional<UserEntity> getById(String id);
-    Boolean deleteById(String id);
-    Boolean updateById(String id, UserEntity userEntity);
-    Boolean updateByName(String userName, UserEntity userEntity);
+    boolean deleteById(String id);
+    boolean updateById(String id, UserEntity userEntity);
+    boolean updateByName(String userName, UserEntity userEntity);
     UserEntity getByUserName(String userName);
+    boolean deleteByName(String userName);
 }
