@@ -27,4 +27,8 @@ public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
      * Spring automatically generates the MongoDB query: db.users.find({ "userName": "..." })
      */
     UserEntity getByUserName(String userName);
+
+    // Spring Data Mongo's deleteBy returns a Long (deleted count), not a boolean.
+    // Using boolean causes a ClassCastException because Mongo can't auto-cast Long to Boolean.
+    Long deleteByUserName(String userName);
 }
