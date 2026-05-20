@@ -21,10 +21,6 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    // Constructor injection is the preferred way to inject dependencies, though @Autowired is also used above.
-    SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl) {
-        this.userDetailsServiceImpl = userDetailsServiceImpl;
-    }
 
     /**
      * The SecurityFilterChain bean defines which database/HTTP requests are secure, 
