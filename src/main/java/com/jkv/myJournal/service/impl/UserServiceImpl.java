@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,19 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    /**
+     * By putting @Autowired directly on top of the private PasswordEncoder passwordEncoder; variable
+     * Spring grabs your BCryptPasswordEncoder bean and drops it directly into that variable.
+     * 
+     * from
+     * @Bean
+     * public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+     */
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     /**
      * Why @NonNull is used here:
      * 1. Spring Data Repositories (userRepository) are strictly typed to not accept nulls.
@@ -31,12 +42,14 @@ public class UserServiceImpl implements UserService{
      *    at the start. This "proves" to the IDE that the value is safe before it 
      *    reaches userRepository.save(), thus clearing the warning.
      */
-    // Alternative - if we can check object is not null before passing to save method, it doesn't give any warning.
-    // @Override
-    // public void saveAll(UserEntity userEntity) {
-    //     if(userEntity!=null)
-    //     userRepository.save(userEntity);
-    // }
+    /**
+     * Alternative - if we can check object is not null before passing to save method, it doesn't give any warning.
+        @Override
+        public void saveAll(UserEntity userEntity) {
+            if(userEntity!=null)
+            userRepository.save(userEntity);
+    }
+     */
     @Override
     public void saveAll(@NonNull UserEntity userEntity) {
         userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
