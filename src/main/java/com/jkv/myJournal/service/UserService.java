@@ -8,6 +8,7 @@ import com.jkv.myJournal.entity.UserEntity;
 public interface UserService {
     void saveNewAll(UserEntity userEntity);
     void saveUser(UserEntity userEntity);
+    void saveNewAdmin(UserEntity userEntity);
     List<UserEntity> getAll();
     Optional<UserEntity> getById(String id);
     boolean deleteById(String id);
