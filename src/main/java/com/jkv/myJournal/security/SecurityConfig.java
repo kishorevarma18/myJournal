@@ -37,6 +37,18 @@ public class SecurityConfig {
             .authorizeRequests(requests -> requests
                 // Allows anyone to access endpoints starting with "/public/" without logging in.
                 .antMatchers("/public/**").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                /*
+                // below code also works, but .hasRole("ADMIN") is the standard practice
+                .antMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+
+                // in order to use .hasRole("ADMIN")
+                // we have provide new SimpleGrantedAuthority("ROLE_" + role) in getAuthorities method in UserPrincipal class
+                
+                // if you don't want to include ROLE_ in SimpleGrantedAuthority then use .hasAuthority("ADMIN") in securityFilterChain instead of .hasRole("ADMIN").
+                // cause .hasRole("ADMIN") will look for "ROLE_ADMIN".
+                */
+
                 // Every other request not covered above MUST be authenticated.
                 .anyRequest().authenticated())
             
