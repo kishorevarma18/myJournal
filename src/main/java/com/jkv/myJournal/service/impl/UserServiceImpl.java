@@ -65,6 +65,13 @@ public class UserServiceImpl implements UserService{
     }
     
     @Override
+    public void saveNewAdmin(@NonNull UserEntity userEntity) {
+        userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
+        userEntity.setRoles(Arrays.asList("USER","ADMIN"));
+        userRepository.save(userEntity);
+    }
+    
+    @Override
     public void saveUser(@NonNull UserEntity userEntity){
         userRepository.save(userEntity);
     }
