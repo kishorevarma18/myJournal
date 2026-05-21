@@ -3,13 +3,17 @@ package com.jkv.myJournal.service.impl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.jkv.myJournal.entity.JournalEntityWithDb;
 import com.jkv.myJournal.entity.UserEntity;
+import com.jkv.myJournal.repository.JournalRepository;
 import com.jkv.myJournal.repository.UserRepository;
 import com.jkv.myJournal.service.UserService;
 
@@ -19,6 +23,9 @@ import lombok.NonNull;
 public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JournalRepository journalRepository;
 
     /**
      * By putting @Autowired directly on top of the private PasswordEncoder passwordEncoder; variable
@@ -51,12 +58,16 @@ public class UserServiceImpl implements UserService{
     }
      */
     @Override
-    public void saveAll(@NonNull UserEntity userEntity) {
+    public void saveNewAll(@NonNull UserEntity userEntity) {
         userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
         userEntity.setRoles(Arrays.asList("USER"));
         userRepository.save(userEntity);
     }
     
+    @Override
+    public void saveUser(@NonNull UserEntity userEntity){
+        userRepository.save(userEntity);
+    }
 
     @Override
     public List<UserEntity> getAll() {
@@ -104,13 +115,21 @@ public class UserServiceImpl implements UserService{
         return false;
     }
 
+    @Transactional
     @Override
     public boolean deleteByName(String userName) {
-        Long status = userRepository.deleteByUserName(userName);
-        if(status==0){
+        UserEntity user = userRepository.getByUserName(userName);
+        if(user == null){
             return false;
         }
-        return true; 
+        List<ObjectId> journalIds = user.getJournalEntries().stream()
+        .map(JournalEntityWithDb::getId) //The Method Reference Way (ClassName::methodName)
+        .collect(Collectors.toList());
+        if(!journalIds.isEmpty()){
+            journalRepository.deleteByIdIn(journalIds);
+        }
+        userRepository.delete(user);
+        return true;
     }
 
     @Override
