@@ -28,9 +28,9 @@ public class PublicController {
     }
 
     @PostMapping("/create-user")
-    public ResponseEntity<?> saveUsers(@RequestBody UserEntity userEntity) {
+    public ResponseEntity<?> saveNewUsers(@RequestBody UserEntity userEntity) {
         if(userEntity!=null){
-            userService.saveAll(userEntity);
+            userService.saveNewAll(userEntity);
             return ResponseEntity.status(HttpStatus.OK).body(userEntity);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body can't be null");
