@@ -13,7 +13,7 @@ import com.jkv.myJournal.entity.JournalEntityWithDb;
 public interface JournalService {
     void saveEntry(JournalEntityWithDb journalEntry, String userName);
     List<JournalEntityWithDb> getAll(String userName);
-    Optional<JournalEntityWithDb> getById(String id);
+    Optional<JournalEntityWithDb> getById(String id, String userName);
     boolean deleteById(String id, String userName);
     JournalEntityWithDb putById(String id, JournalEntityWithDb journalEntry, String userName);
 }
