@@ -3,6 +3,7 @@ package com.jkv.myJournal.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+//import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+//@Profile("dev") //Tells when to load this bean based on the profile which we run on.
 @Configuration // Tells Spring that this class contains bean definitions for the application context.
 @EnableWebSecurity // Enables Spring Security's web security support and integrates it with Spring MVC.
 public class SecurityConfig {
