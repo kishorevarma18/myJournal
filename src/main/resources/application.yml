@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: prod
+
+# Even though it is mentioned prod here if i ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
+
+
+#so we create a package ./mvnw clean package -D spring.profiles.active=dev
+#so to execute jar file java -jar ./target/myJournal-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+
