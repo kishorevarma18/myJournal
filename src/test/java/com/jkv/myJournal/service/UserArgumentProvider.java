@@ -39,9 +39,9 @@ public class UserArgumentProvider implements ArgumentsProvider {
          * public void myTest(String description, UserEntity user)
          */
         return Stream.of(
-            Arguments.of("User", new UserEntity("Tejaswi", "Tejaswi@123")),
-            Arguments.of("King", new UserEntity("Ashita", "Ashita@123")),
-            Arguments.of("vinesh", new UserEntity("Vinesh", "Vinesh@123"))
+            Arguments.of("Kishore", new UserEntity("Tejaswi", "Tejaswi@123")),
+            Arguments.of("Varma", new UserEntity("Ashita", "Ashita@123")),
+            Arguments.of("Jampani", new UserEntity("Vinesh", "Vinesh@123"))
         );
     }
 }

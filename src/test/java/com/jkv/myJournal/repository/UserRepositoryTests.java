@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
+//import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jkv.myJournal.entity.UserEntity;
@@ -16,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * relevant to MongoDB tests (like configuring an embedded MongoDB if available,
  * configuring MongoTemplate, and scanning for Spring Data Mongo repositories).
  */
+//@ActiveProfiles("dev") //Runs this tests with active profile is dev
 @DataMongoTest
 public class UserRepositoryTests {
 
@@ -51,7 +53,7 @@ public class UserRepositoryTests {
          * succeeds without throwing this exact exception, the test will fail.
          */
         assertThatThrownBy(() -> {
-            UserEntity invalidUser = new UserEntity("vinesh", "Vinesh@123");
+            UserEntity invalidUser = new UserEntity("Kishore", "Vinesh@123");
             userRepository.save(invalidUser);
         }).isInstanceOf(DuplicateKeyException.class);
     }

@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jkv.myJournal.entity.UserEntity;
 
@@ -32,6 +33,7 @@ public class UpdateAndDeleteTests {
      * It allows feeding complex objects (like the String 'name' and the 'UserEntity' object) 
      * straight into the test parameters row-by-row.
      */
+    @Transactional
     @ParameterizedTest
     @ArgumentsSource(UserArgumentProvider.class)
     public void TestUpdatebyName(String name, UserEntity user){
@@ -43,12 +45,12 @@ public class UpdateAndDeleteTests {
          */
         assertTrue(userService.updateByName(name, user));
     }
-
+    @Transactional
     @ParameterizedTest
     @CsvSource({
-        "Tejaswi",
-        "Ashita",
-        "Vinesh"
+        "Kishore",
+        "Varma",
+        "Jampani"
     })
     public void TestDeletebyName(String name){
         /**

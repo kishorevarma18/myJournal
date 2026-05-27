@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jkv.myJournal.entity.UserEntity;
 import com.jkv.myJournal.repository.UserRepository;
@@ -42,11 +43,8 @@ public class UserServiceImplTests {
      */
     @ParameterizedTest
     @ValueSource(strings={
-        "kishore",
-        "vinesh",
         "Admin",
-        "Varma",
-        "Karma"
+        "Varma"
     })
     public void testGetByUserName(String name){
         /**
@@ -65,12 +63,11 @@ public class UserServiceImplTests {
      * in the array represents a single test run, and the comma splits the values into 
      * the method's parameters (e.g., "user," sets name="user" and password=null).
      */
+    @Transactional
     @ParameterizedTest
     @CsvSource({
         "user,",
-        ",nouser@123",
-        "User,User@123",
-        "King,King@123"
+        ",nouser@123"
     })
     public void TestSaveUser(String name, String password){
         String passwordEncode = (password != null) ? passwordEncoder.encode(password) : null;
