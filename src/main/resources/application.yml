@@ -2,9 +2,24 @@ spring:
   profiles:
     active: prod
 
-# Even though it is mentioned prod here if i ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
+# Even though it is mentioned prod here if i hit ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
 
 
 #so we create a package ./mvnw clean package -D spring.profiles.active=dev
 #so to execute jar file java -jar ./target/myJournal-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 
+# this specific YAML configuration is used to control the log verbosity (logging levels) of your application.
+
+# logging:
+#   level:
+#     com:
+#       jkv:
+#         myJournal: TRACE
+
+# this is for a specific package.
+
+# logging:
+#   level:
+#     root: OFF
+
+# this is for entire application.
