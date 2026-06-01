@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,8 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     /**
      * Why @NonNull is used here:
      * 1. Spring Data Repositories (userRepository) are strictly typed to not accept nulls.
@@ -58,10 +62,32 @@ public class UserServiceImpl implements UserService{
     }
      */
     @Override
-    public void saveNewAll(@NonNull UserEntity userEntity) {
-        userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
-        userEntity.setRoles(Arrays.asList("USER"));
-        userRepository.save(userEntity);
+    public boolean saveNewAll(@NonNull UserEntity userEntity) {
+        try{
+            String newUserName = userEntity.getUserName();
+            UserEntity existingUser = userRepository.getByUserName(newUserName);
+            if(existingUser!=null){
+                // return false;
+            }
+            userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
+            userEntity.setRoles(Arrays.asList("USER"));
+            userRepository.save(userEntity);
+            return true;
+        }
+        catch(Exception e){
+            logger.error("error occured for {}",userEntity.getUserName(),e);
+            logger.trace("trace the error");
+            logger.debug("debug the error");
+            logger.warn("warning! error occured!");
+            logger.info("info about error");
+            /**
+             * Logging levels- Trace < debug < info < warn < error  -- this severity level is followed respectively.
+             * 
+             * by default logging is enabled for info, warn, error only. That is why trace and debug is not working in above example. 
+             */
+
+            return false;
+        }
     }
     
     @Override

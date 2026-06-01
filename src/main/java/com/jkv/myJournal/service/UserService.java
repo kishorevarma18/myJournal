@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.jkv.myJournal.entity.UserEntity;
 
 public interface UserService {
-    void saveNewAll(UserEntity userEntity);
+    boolean saveNewAll(UserEntity userEntity);
     void saveUser(UserEntity userEntity);
     void saveNewAdmin(UserEntity userEntity);
     List<UserEntity> getAll();
