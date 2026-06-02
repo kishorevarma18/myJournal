@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jkv</groupId>
-	<artifactId>myJournal</artifactId>
+	<artifactId>myjournal</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>myJournal</name>
+	<name>myjournal</name>
 	<description/>
 	<url/>
 	<licenses>

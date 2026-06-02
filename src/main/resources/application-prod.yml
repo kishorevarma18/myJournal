@@ -1,6 +1,6 @@
 spring:
     application:
-        name: myJournal
+        name: myjournal
     # the following properties are used for setting up the local mongodb server port to the project.
     # spring.data.mongodb.host=localhost
     # spring.data.mongodb.port=27017
