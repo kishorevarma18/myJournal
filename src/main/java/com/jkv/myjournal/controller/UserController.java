@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jkv.myjournal.client.weather.WeatherResponse;
+import com.jkv.myjournal.client.weather.WeatherService;
 import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.security.UserPrincipal;
 import com.jkv.myjournal.service.UserService;
@@ -30,6 +32,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private WeatherService weatherService;
 
     // @GetMapping
     // public ResponseEntity<?> getUsers(){
@@ -121,6 +126,40 @@ public class UserController {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(userService.getByUserName(userName));
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/weather")
+    public ResponseEntity<?> getWeatherforUser(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        String userName = userPrincipal.getUsername();
+        String cityName = userPrincipal.getCity();
+        WeatherResponse weatherResponse = weatherService.getCurrentWeatherResponse(cityName);
+        try{
+            /*
+            String	%s ,int	%d, double/float	%f, double with 1 decimal	%.1f, double with 2 decimals	%.2f, New line	%n
+            boolean %b, char %c.
+            Format Specifiers Cheat Sheet
+            */
+            return ResponseEntity.status(HttpStatus.OK).body(
+                String.format("Hi %s!!%nCurrent Location: %s%nCurrent Temparature: %d C%nFeels like: %d C",
+                    userName,
+                    cityName,
+                    weatherResponse.getCurrent().getTemperature(),
+                    weatherResponse.getCurrent().getFeelslike()
+                )
+            );
+            /*
+            //this provides the json response which most applications accepts.
+            Map<String, Object> response = Map.of(
+                "city",cityName,
+                "temperature", weatherResponse.getCurrent().getTemperature(),
+                "feelsLike", weatherResponse.getCurrent().getFeelslike()
+            );
+            return ResponseEntity.ok(response);
+            */
+        }
+        catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
