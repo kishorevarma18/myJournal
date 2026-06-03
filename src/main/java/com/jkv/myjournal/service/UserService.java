@@ -16,4 +16,5 @@ public interface UserService {
     boolean updateByName(String userName, UserEntity userEntity);
     UserEntity getByUserName(String userName);
     boolean deleteByName(String userName);
+    String getCity(String userName);
 }

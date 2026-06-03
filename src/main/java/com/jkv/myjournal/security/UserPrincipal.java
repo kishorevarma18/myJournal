@@ -24,6 +24,10 @@ public class UserPrincipal implements UserDetails {
         this.userEntity = userEntity;
     }
 
+    public String getCity(){
+        return userEntity.getCity();
+    }
+
     /**
      * LOGIC EXPLANATION FOR ROLES METHOD:
      * Spring Security expects permissions/roles to be returned as a Collection of GrantedAuthority objects.
