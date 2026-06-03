@@ -7,7 +7,11 @@ spring:
     # the following propert is used for connecting to mongodb atlas
     data:
         mongodb:
-            uri: mongodb+srv://jkv9963_db_user:WKskR1JejEatdiO4@cluster0.ssbkead.mongodb.net/?appName=Cluster0
+            # 1. ENVIRONMENT-AWARE CONNECTION STRING:
+            # Spring looks for a system environment variable named 'MONGODB_ATLAS_URI' (e.g., in VS Code launch.json or AWS env properties).
+            # If found, it connects to your live Cloud Atlas Cluster. 
+            # If absent, the ':' acts as an OR switch, falling back to a local database instance at 'mongodb://localhost:27017'.
+            uri: ${MONGO_ATLAS_URI:mongodb://localhost:27017}
             database: journaldb
             auto-index-creation: true
 # Enables automatic creation of indexes defined in your Entity classes.
