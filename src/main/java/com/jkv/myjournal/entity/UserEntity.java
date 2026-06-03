@@ -39,7 +39,7 @@ public class UserEntity {
      */
     @NonNull
     private String userPassword;
-
+    private String city;
     /**
      * @DBRef
      * -------
