@@ -17,6 +17,7 @@ import com.jkv.myjournal.entity.JournalEntityWithDb;
 import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.repository.JournalRepository;
 import com.jkv.myjournal.repository.UserRepository;
+import com.jkv.myjournal.service.EmailService;
 import com.jkv.myjournal.service.UserService;
 
 import lombok.NonNull;
@@ -28,6 +29,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private JournalRepository journalRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     /**
      * By putting @Autowired directly on top of the private PasswordEncoder passwordEncoder; variable
@@ -91,10 +95,28 @@ public class UserServiceImpl implements UserService{
     }
     
     @Override
+    @Transactional
+    /*
+    here the transactional feature doesn't work because the emailService is set as Async.
+    so here once the user got created the emailService hand over to a new thread which the transactional thinks like the main thread task is completed.
+    inorder to make the transactional work we have remove the Async method from method.
+
+
+    even if you remove the @Async from the sendEmail method in EmailServiceImpl, the transactional will not work.
+    because all the error are caught using catch so there are no unhandled error to trigger the rollback process.
+     */
     public void saveNewAdmin(@NonNull UserEntity userEntity) {
         userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
         userEntity.setRoles(Arrays.asList("USER","ADMIN"));
         userRepository.save(userEntity);
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("New Admin has been created in MyJournal application.\n")
+                .append("UserName: ").append(userEntity.getUserName()).append("\n")
+                .append("Please check activity in MongoDB Atlas.\n\n")
+                .append("Thank you,\n")
+                .append("ADMIN");
+
+        emailService.sendEmail("jkv9963@gmail.com", "New Admin created.", emailBody.toString());
     }
     
     @Override
