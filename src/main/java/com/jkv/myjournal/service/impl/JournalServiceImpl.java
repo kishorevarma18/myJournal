@@ -74,6 +74,10 @@ public class JournalServiceImpl implements JournalService {
         The Journal Entry saved in Step 2 is DELETED from the database.
         Result: Your data stays consistent. You don't have "orphan" journal entries 
         that aren't linked to a user.
+
+        NOTE-
+
+        @Transactional determines whether to commit or rollback based entirely on whether an unhandled Exception is thrown out of the method.
         */
     }
 
