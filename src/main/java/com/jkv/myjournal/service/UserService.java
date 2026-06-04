@@ -17,4 +17,5 @@ public interface UserService {
     UserEntity getByUserName(String userName);
     boolean deleteByName(String userName);
     String getCity(String userName);
+    List<UserEntity> getUsersByCityAndRole(String role,String city);
 }

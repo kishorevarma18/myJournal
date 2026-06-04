@@ -174,4 +174,9 @@ public class UserServiceImpl implements UserService{
     public String getCity(String userName){
         return userRepository.getByUserName(userName).getCity();
     }
+
+    @Override
+    public List<UserEntity> getUsersByCityAndRole(String role,String city){
+        return userRepository.findUsersByCityAndRole(role, city);
+    } 
 }
