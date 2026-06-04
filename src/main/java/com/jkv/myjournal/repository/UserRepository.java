@@ -11,7 +11,7 @@ import com.jkv.myjournal.entity.UserEntity;
  * While optional for MongoRepository, it helps with exception translation.
  */
 @Repository 
-public interface UserRepository extends MongoRepository<UserEntity, ObjectId> {
+public interface UserRepository extends MongoRepository<UserEntity, ObjectId>, CustomUserRepository {
 
     /**
      * WHY create custom methods:
