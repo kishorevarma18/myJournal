@@ -1,8 +1,21 @@
 spring:
   profiles:
     active: prod
+    # Even though it is mentioned prod here if i hit ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
 
-# Even though it is mentioned prod here if i hit ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
+    
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 18r01a0479@cmritonline.ac.in
+    password: ${EMAIL_PASSWORD}
+    properties:
+        mail:
+            smtp:
+                auth: true
+                starttls:
+                    enable: true
+                    required: true
 
 
 #so we create a package ./mvnw clean package -D spring.profiles.active=dev
