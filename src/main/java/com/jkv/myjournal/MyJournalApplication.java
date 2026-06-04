@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * and your database operations will not be atomic (no rollbacks).
  */
 @EnableTransactionManagement
+@EnableAsync
 public class MyJournalApplication {
 
     public static void main(String[] args) {
