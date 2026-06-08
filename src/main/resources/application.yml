@@ -2,7 +2,9 @@ spring:
   profiles:
     active: prod
     # Even though it is mentioned prod here if i hit ctrl+f5 then dev will be running because in vscode launch.json setting we have mentioned dev.
-
+  redis:
+    host: localhost
+    port: 6379
     
   mail:
     host: smtp.gmail.com
