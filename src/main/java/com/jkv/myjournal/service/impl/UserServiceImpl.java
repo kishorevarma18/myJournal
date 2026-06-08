@@ -9,6 +9,8 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +19,8 @@ import com.jkv.myjournal.entity.JournalEntityWithDb;
 import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.repository.JournalRepository;
 import com.jkv.myjournal.repository.UserRepository;
-import com.jkv.myjournal.service.EmailService;
 import com.jkv.myjournal.service.UserService;
+import com.jkv.myjournal.util.EmailService;
 
 import lombok.NonNull;
 
@@ -66,6 +68,7 @@ public class UserServiceImpl implements UserService{
     }
      */
     @Override
+    @CacheEvict(value = "all_users_cache", key="'allUsers'")
     public boolean saveNewAll(@NonNull UserEntity userEntity) {
         try{
             String newUserName = userEntity.getUserName();
@@ -105,6 +108,7 @@ public class UserServiceImpl implements UserService{
     even if you remove the @Async from the sendEmail method in EmailServiceImpl, the transactional will not work.
     because all the error are caught using catch so there are no unhandled error to trigger the rollback process.
      */
+    @CacheEvict(value = "all_users_cache", key="'allUsers'")
     public void saveNewAdmin(@NonNull UserEntity userEntity) {
         userEntity.setUserPassword(passwordEncoder.encode(userEntity.getUserPassword()));
         userEntity.setRoles(Arrays.asList("USER","ADMIN"));
@@ -125,11 +129,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Cacheable(value = "all_users_cache", key="'allUsers'")
     public List<UserEntity> getAll() {
         return userRepository.findAll();
     }
 
     @Override
+    @Cacheable(value="singleUser",key="#id")
     public Optional<UserEntity> getById(String id) {
         if(ObjectId.isValid(id)){
             return userRepository.findById(new ObjectId(id));
@@ -138,6 +144,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @CacheEvict(value="singleUser",key="#id")
     public boolean deleteById(String id) {
         if(ObjectId.isValid(id)){
             userRepository.deleteById(new ObjectId(id));
@@ -147,6 +154,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @CacheEvict(value="singleUser",key="#id")
     public boolean updateById(String id, UserEntity newUser) {
         UserEntity oldUser = userRepository.findById(new ObjectId(id)).orElse(null);
         if(ObjectId.isValid(id)){
@@ -159,6 +167,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @CacheEvict(value="singleUser",key="#userName")
     public boolean updateByName(String userName, UserEntity newUser) {
         UserEntity oldUser = userRepository.getByUserName(userName);
         if(oldUser!=null){
@@ -172,6 +181,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
+    @CacheEvict(value="singleUser",key="#userName")
     public boolean deleteByName(String userName) {
         UserEntity user = userRepository.getByUserName(userName);
         if(user == null){
@@ -188,6 +198,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Cacheable(value="singleUser",key="#userName")
     public UserEntity getByUserName(String userName) {
         return userRepository.getByUserName(userName);
     }

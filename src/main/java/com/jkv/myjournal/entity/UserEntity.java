@@ -10,10 +10,14 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Document(collection="users") // Maps this class to the "users" collection in MongoDB
 @Data // Lombok: Automatically generates Getters, Setters, toString, equals, and hashCode
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class UserEntity {
 
     @Id // Marks this field as the primary key (_id) in MongoDB

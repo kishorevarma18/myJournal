@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.jkv.myjournal.util.RedisService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class WeatherService {
     
     private final WebClient weatherStackWebClient;
+    private final RedisService redisService;
 
     @Value("${weatherstack.api.base-url}")
     private String baseUrl;
@@ -57,56 +60,61 @@ public class WeatherService {
 
     public WeatherResponse getCurrentWeatherResponse(String city){
         try{
-            log.info("Fetching weather data via WebClient for city: {}", city);
 
-            // 1. .get()
-            // Configures the HTTP request method as a GET request.
-            return weatherStackWebClient.get()
-                    
-                    // 2. .uri(...)
-                    // Accepts a lambda function to construct the URL dynamically and safely.
-                    .uri(uriBuilder -> uriBuilder
-                        // .path() appends the relative endpoint path onto the client's preconfigured base-url
-                        .path("/current")
-                        // .queryParam() cleanly appends key-value pairs to the URL string (?access_key=X&query=Y)
-                        // It automatically handles URL-encoding protection (e.g., handles city spaces like "New York")
-                        .queryParam("access_key", apiKey)
-                        .queryParam("query", city)
-                        // .build() compiles all path and query parameter fragments into a final URI object
-                        .build())
-                    
-                    // 3. .retrieve()
-                    // Instructs the WebClient to execute the HTTP call and sends the request over the network.
-                    // This method implicitly reads the HTTP response status code and headers.
-                    .retrieve()
-                    
-                    // 4. .onStatus(...)
-                    // Intercepts the response stream if an error occurs.
-                    // 'HttpStatus::isError' checks if the response code is a 4xx (Client Error) or 5xx (Server Error).
-                    .onStatus(HttpStatus::isError, clientResponse -> {
-                        // If it's an error status, it logs the code and wraps a RuntimeException inside a reactive Mono.error
-                        // This bypasses normal JSON mapping and forces the execution stream straight to the catch block.
-                        log.error("Weatherstack API returned error status: {}", clientResponse.statusCode());
-                        return Mono.error(new RuntimeException("Weather API error status: " + clientResponse.statusCode()));
-                    })
-                    
-                    // 5. .bodyToMono(WeatherResponse.class)
-                    // Extracts the raw JSON payload from the HTTP response body.
-                    // It uses Spring's underlying Jackson library to deserialize the JSON properties directly into the WeatherResponse Java POJO.
-                    // It returns a Mono<WeatherResponse>, which represents a reactive, async blueprint of the data.
-                    .bodyToMono(WeatherResponse.class)
-                    
-                    // 6. .block()
-                    // Serves as the synchronous bridge between WebClient's asynchronous engine and your blocking service layout.
-                    // This halts execution on the current thread and forces the application to wait right here 
-                    // until the network response completes, unpacking the Mono and returning the raw WeatherResponse object.
-                    .block();
-
+            WeatherResponse cachedResponse = (WeatherResponse) redisService.get("Weather_Of_"+city);
+            if(cachedResponse!=null){
+                log.info("Fetching weather data via Redis Cache for city: {}",city);
+                return cachedResponse;
+            }
+            else{
+                log.info("Fetching weather data via WebClient for city: {}", city);
+                // 1. .get()
+                // Configures the HTTP request method as a GET request.
+                WeatherResponse body = weatherStackWebClient.get()                   
+                        // 2. .uri(...)
+                        // Accepts a lambda function to construct the URL dynamically and safely.
+                        .uri(uriBuilder -> uriBuilder
+                            // .path() appends the relative endpoint path onto the client's preconfigured base-url
+                            .path("/current")
+                            // .queryParam() cleanly appends key-value pairs to the URL string (?access_key=X&query=Y)
+                            // It automatically handles URL-encoding protection (e.g., handles city spaces like "New York")
+                            .queryParam("access_key", apiKey)
+                            .queryParam("query", city)
+                            // .build() compiles all path and query parameter fragments into a final URI object
+                            .build())                    
+                        // 3. .retrieve()
+                        // Instructs the WebClient to execute the HTTP call and sends the request over the network.
+                        // This method implicitly reads the HTTP response status code and headers.
+                        .retrieve()                    
+                        // 4. .onStatus(...)
+                        // Intercepts the response stream if an error occurs.
+                        // 'HttpStatus::isError' checks if the response code is a 4xx (Client Error) or 5xx (Server Error).
+                        .onStatus(HttpStatus::isError, clientResponse -> {
+                            // If it's an error status, it logs the code and wraps a RuntimeException inside a reactive Mono.error
+                            // This bypasses normal JSON mapping and forces the execution stream straight to the catch block.
+                            log.error("Weatherstack API returned error status: {}", clientResponse.statusCode());
+                            return Mono.error(new RuntimeException("Weather API error status: " + clientResponse.statusCode()));
+                        })                   
+                        // 5. .bodyToMono(WeatherResponse.class)
+                        // Extracts the raw JSON payload from the HTTP response body.
+                        // It uses Spring's underlying Jackson library to deserialize the JSON properties directly into the WeatherResponse Java POJO.
+                        // It returns a Mono<WeatherResponse>, which represents a reactive, async blueprint of the data.
+                        .bodyToMono(WeatherResponse.class)                    
+                        // 6. .block()
+                        // Serves as the synchronous bridge between WebClient's asynchronous engine and your blocking service layout.
+                        // This halts execution on the current thread and forces the application to wait right here 
+                        // until the network response completes, unpacking the Mono and returning the raw WeatherResponse object.
+                        .block();
+                if(body!=null){
+                    redisService.set("Weather_Of_"+city, body, 300L);
+                }
+                return body;
+            }
         }
         catch(Exception e) {
             // Graceful degradation: catch network connection issues, timeouts, or 4xx/5xx API failures.
             // Log the problem securely, but return null so the core Journal transaction doesn't crash completely.
-            log.error("Error communicating with Weatherstack API for city {}: {}", city, e.getMessage());
+            log.error("Error communicating with Weatherstack API for city {}: {}", city, e);
             return null;
         }
     }
