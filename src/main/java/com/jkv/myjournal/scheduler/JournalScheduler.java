@@ -3,7 +3,7 @@ package com.jkv.myjournal.scheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.jkv.myjournal.service.EmailService;
+import com.jkv.myjournal.util.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
