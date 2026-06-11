@@ -2,15 +2,15 @@ package com.jkv.myjournal.repository;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
 import com.jkv.myjournal.entity.UserEntity;
 
 /**
  * @Repository: Tells Spring this is a Data Access Object (DAO). 
- * While optional for MongoRepository, it helps with exception translation.
+ * NOTE- While it is optional for MongoRepository/JpaRepository. 
+ * spring boot directly know that this is Repository bean when you extends to MongoRepository/JpaRepository
  */
-@Repository 
+
 public interface UserRepository extends MongoRepository<UserEntity, ObjectId>, CustomUserRepository {
 
     /**

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
 import com.jkv.myjournal.entity.JournalEntityWithDb;
 
@@ -12,7 +11,7 @@ import com.jkv.myjournal.entity.JournalEntityWithDb;
  * @Repository tells Spring to manage this interface as a bean. 
  * It acts as the Data Access Layer of your application.
  */
-@Repository
+//@Repository
 public interface JournalRepository extends MongoRepository<JournalEntityWithDb, ObjectId> {
     
     /* 
