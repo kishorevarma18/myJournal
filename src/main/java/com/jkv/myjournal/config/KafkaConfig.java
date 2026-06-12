@@ -23,7 +23,8 @@ public class KafkaConfig {
         config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,bootStrapServer);
         return new KafkaAdmin(config);
     }
-
+    //Each bootStrapServer is a broker, working as a single kafka cluster.
+    //The KafkaAdmin bean is a client-side utility used by our application to interact administrative tasks (like creating topics) with that cluster.
     @Bean
     NewTopic emailNotificationTopic(){
         return TopicBuilder.name("email-notification-events")
