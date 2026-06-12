@@ -2,7 +2,6 @@ package com.jkv.myjournal.util.impl;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.jkv.myjournal.util.EmailService;
@@ -16,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailServiceImpl implements EmailService{
     private final JavaMailSender javaMailSender;
 
-    @Async
-    //using Async here so that this process can be handled by another thread, without blocking the main thread.
     @Override
     public void sendEmail(String to, String subject, String body) {
         try{
