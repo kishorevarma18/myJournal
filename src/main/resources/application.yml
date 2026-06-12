@@ -19,7 +19,26 @@ spring:
                 starttls:
                     enable: true
                     required: true
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    # Producer Configuration
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    # Consumer Configuration
+    consumer:
+      group-id: myjournal-notification-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      # Trusted Packages for Deserialization Security
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.jkv.myjournal.event
+            # value:
+            #   default:
+            #     type: com.jkv.myjournal.event.EmailEvent
 
 #so we create a package ./mvnw clean package -D spring.profiles.active=dev
 #so to execute jar file java -jar ./target/myJournal-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
