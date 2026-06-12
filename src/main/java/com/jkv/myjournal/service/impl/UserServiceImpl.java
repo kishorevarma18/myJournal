@@ -8,33 +8,29 @@ import java.util.stream.Collectors;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jkv.myjournal.entity.JournalEntityWithDb;
 import com.jkv.myjournal.entity.UserEntity;
+import com.jkv.myjournal.event.EmailEvent;
 import com.jkv.myjournal.repository.JournalRepository;
 import com.jkv.myjournal.repository.UserRepository;
 import com.jkv.myjournal.service.UserService;
-import com.jkv.myjournal.util.EmailService;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private JournalRepository journalRepository;
-
-    @Autowired
-    private EmailService emailService;
-
+    private final UserRepository userRepository;
+    private final JournalRepository journalRepository;
     /**
      * By putting @Autowired directly on top of the private PasswordEncoder passwordEncoder; variable
      * Spring grabs your BCryptPasswordEncoder bean and drops it directly into that variable.
@@ -45,8 +41,8 @@ public class UserServiceImpl implements UserService{
         return new BCryptPasswordEncoder();
     }
      */
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final KafkaTemplate<String, EmailEvent> kafkaTemplate;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -120,7 +116,13 @@ public class UserServiceImpl implements UserService{
                 .append("Thank you,\n")
                 .append("ADMIN");
 
-        emailService.sendEmail("jkv9963@gmail.com", "New Admin created.", emailBody.toString());
+        EmailEvent event = EmailEvent.builder()
+        .to("jkv9963@gmail.com")
+        .subject("New Admin created.")
+        .body(emailBody.toString())
+        .build();
+        logger.info("Publishing admin creation event to Kafka for user: {}", userEntity.getUserName());
+        kafkaTemplate.send("email-notification-events",userEntity.getUserName(),event);
     }
     
     @Override
@@ -157,9 +159,9 @@ public class UserServiceImpl implements UserService{
     @CacheEvict(value="singleUser",key="#id")
     public boolean updateById(String id, UserEntity newUser) {
         UserEntity oldUser = userRepository.findById(new ObjectId(id)).orElse(null);
-        if(ObjectId.isValid(id)){
-            oldUser.setUserName((newUser.getUserName()!=null && !newUser.getUserName().equals(""))?newUser.getUserName():oldUser.getUserName());
-            oldUser.setUserPassword(passwordEncoder.encode((newUser.getUserPassword()!=null && !newUser.getUserPassword().equals(""))?newUser.getUserPassword():oldUser.getUserPassword()));
+        if(ObjectId.isValid(id)&& oldUser!=null){
+            oldUser.setUserName((!newUser.getUserName().equals(""))?newUser.getUserName():oldUser.getUserName());
+            oldUser.setUserPassword(passwordEncoder.encode((!newUser.getUserPassword().equals(""))?newUser.getUserPassword():oldUser.getUserPassword()));
             userRepository.save(oldUser);
             return true;
         }
@@ -171,8 +173,8 @@ public class UserServiceImpl implements UserService{
     public boolean updateByName(String userName, UserEntity newUser) {
         UserEntity oldUser = userRepository.getByUserName(userName);
         if(oldUser!=null){
-            oldUser.setUserName((newUser.getUserName()!=null && !newUser.getUserName().equals(""))?newUser.getUserName():oldUser.getUserName());
-            oldUser.setUserPassword(passwordEncoder.encode((newUser.getUserPassword()!=null && !newUser.getUserPassword().equals(""))?newUser.getUserPassword():oldUser.getUserPassword()));
+            oldUser.setUserName((!newUser.getUserName().equals(""))?newUser.getUserName():oldUser.getUserName());
+            oldUser.setUserPassword(passwordEncoder.encode((!newUser.getUserPassword().equals(""))?newUser.getUserPassword():oldUser.getUserPassword()));
             userRepository.save(oldUser);
             return true;
         }
