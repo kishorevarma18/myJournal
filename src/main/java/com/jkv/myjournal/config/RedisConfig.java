@@ -65,7 +65,21 @@ public class RedisConfig {
          * inside the Redis server instead of cryptic, unreadable binary streams.
          */
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        /*
+        ***NOTE***-
+        all this ObjectMapper can be avoided if declare id as String instead of ObjectId.
+        MongoDb is smart enough to convert String to Bson ObjectId if we mention @Id on top of it.
+        so we can use it in 2 ways-
+        @Id
+        private String id;
         
+        or
+        
+        @Id
+        @Field(targetField=FieldType.OBJECT_ID)
+        private String id;
+        */
+
         /*
          * Establishes the default behavior rules for the caching engine namespace:
          * 1. entryTtl: Restricts cache lifetimes to 10 minutes to protect against prolonged stale data.
