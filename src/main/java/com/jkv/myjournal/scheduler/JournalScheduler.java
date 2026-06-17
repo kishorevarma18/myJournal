@@ -1,9 +1,10 @@
 package com.jkv.myjournal.scheduler;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.jkv.myjournal.util.EmailService;
+import com.jkv.myjournal.event.EmailEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class JournalScheduler {
-    private final EmailService emailService;
+    private final KafkaTemplate<String, EmailEvent> kafkaTemplate;
 
     @Scheduled(cron = "0 0 0 * * *")
     //@Scheduled is used for scheduling the cron job.
@@ -27,7 +28,12 @@ public class JournalScheduler {
                 .append("\nDaily maintenance cron job completed!")
                 .append("\nThank you,\n")
                 .append("myjournal");
-            emailService.sendEmail("jkv9963@gamil.com", "Daily Maintenance", body.toString());
+            EmailEvent event = EmailEvent.builder()
+                .to("jkv9963@gmail.com")
+                .subject("Daily Maintence Report")
+                .body(body.toString())
+                .build();
+            kafkaTemplate.send("email-notification-events","DailyMaintenceReport",event);
         }
         catch(Exception e){
             log.error("Error occurred during daily maintenance cron execution: {}", e.getMessage());
