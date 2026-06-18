@@ -1,27 +1,34 @@
 package com.jkv.myjournal.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 //import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 //@Profile("dev") //Tells when to load this bean based on the profile which we run on.
 @Configuration // Tells Spring that this class contains bean definitions for the application context.
 @EnableWebSecurity // Enables Spring Security's web security support and integrates it with Spring MVC.
+@RequiredArgsConstructor
 public class SecurityConfig {
     
     // Injecting your custom implementation that loads user-specific data from your database.
-    @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+    // @Autowired
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final JwtAuthTokenFilter jwtAuthTokenFilter;
 
 
     /**
@@ -33,7 +40,7 @@ public class SecurityConfig {
         return http
             // Disables CSRF (Cross-Site Request Forgery) protection. Usually done for REST APIs 
             // since they are stateless and don't rely on browser cookies for session management.
-            .csrf(customizer -> customizer.disable())
+            .csrf(AbstractHttpConfigurer::disable)
             
             // Defines authorization rules for specific HTTP requests.
             .authorizeRequests(requests -> requests
@@ -63,6 +70,7 @@ public class SecurityConfig {
             
             // Enables Basic HTTP Authentication (Username/Password sent in the headers).
             .httpBasic(Customizer.withDefaults())
+            .addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
             
             // Builds and returns the configured HttpSecurity object.
             .build();
@@ -95,8 +103,14 @@ public class SecurityConfig {
         provider.setUserDetailsService(userDetailsServiceImpl);
         return provider;
     }
-    
-
+    /*
+    Spring Security builds and uses an AuthenticationManager internally, but it does not automatically expose it as a Spring Bean in your application context.
+    so we are providing explicitly as below bean.
+    */
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        return config.getAuthenticationManager();
+    }
 
     /**
      * Exposes a PasswordEncoder bean. BCrypt is a secure, industry-standard 
