@@ -63,3 +63,7 @@ weatherstack:
   api:
     base-url: https://api.weatherstack.com
     key: ${WEATHER_API_KEY}
+
+myjournal:
+  app:
+    secretkey: ${JWT_SECRET_KEY}
