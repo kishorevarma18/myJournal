@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.event.EmailEvent;
 import com.jkv.myjournal.repository.JournalRepository;
 import com.jkv.myjournal.repository.UserRepository;
+import com.jkv.myjournal.security.JwtService;
 import com.jkv.myjournal.service.UserService;
 
 import lombok.NonNull;
@@ -43,6 +47,8 @@ public class UserServiceImpl implements UserService{
      */
     private final PasswordEncoder passwordEncoder;
     private final KafkaTemplate<String, EmailEvent> kafkaTemplate;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -213,5 +219,20 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<UserEntity> getUsersByCityAndRole(String role,String city){
         return userRepository.findUsersByCityAndRole(role, city);
+    }
+
+    @Override
+    public String verify(UserEntity user) {
+        try {
+            Authentication authToken = new UsernamePasswordAuthenticationToken(user.getUserName(), user.getUserPassword());
+            Authentication authentication=authenticationManager.authenticate(authToken);
+            if(authentication.isAuthenticated()){
+                return jwtService.generateJwtToken(authentication);
+            }
+        } catch (Exception e) {
+            logger.error("Authentication failed: {}",e.getMessage());
+            return "Failed";
+        }
+        return "Failed!";
     } 
 }
