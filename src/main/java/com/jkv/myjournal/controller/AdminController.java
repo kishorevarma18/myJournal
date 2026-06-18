@@ -2,7 +2,6 @@ package com.jkv.myjournal.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,20 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/view-all-users")
-    public ResponseEntity<?> viewAllUsers(){
+    public ResponseEntity<List<UserEntity>> viewAllUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAll());
     }
 
     @PostMapping("/create-admins")
-    public ResponseEntity<?> createAdmins(@RequestBody(required = false) UserEntity userEntity){
+    public ResponseEntity<Object> createAdmins(@RequestBody(required = false) UserEntity userEntity){
         if(userEntity!=null){
             userService.saveNewAdmin(userEntity);
             return ResponseEntity.status(HttpStatus.OK).body(userEntity);
@@ -37,7 +38,7 @@ public class AdminController {
     }
 
     @GetMapping("/view-users-by-filter")
-    public ResponseEntity<?> viewUsersByFilter(@RequestParam String role,@RequestParam String city){
+    public ResponseEntity<Object> viewUsersByFilter(@RequestParam String role,@RequestParam String city){
         List<UserEntity> list = userService.getUsersByCityAndRole(role, city);
         if(!list.isEmpty()){
             return ResponseEntity.status(HttpStatus.OK).body(list);
