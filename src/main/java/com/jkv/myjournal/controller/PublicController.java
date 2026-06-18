@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jkv.myjournal.entity.UserEntity;
 import com.jkv.myjournal.service.UserService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/public")
 @Slf4j
+@RequiredArgsConstructor
 public class PublicController {
 
-    @Autowired
-    private UserService userService;
+    //@Autowired
+    private final UserService userService;
 
     @GetMapping("/test")
     public String test() {
@@ -31,7 +32,7 @@ public class PublicController {
     }
 
     @PostMapping("/create-user")
-    public ResponseEntity<?> saveNewUsers(@RequestBody UserEntity userEntity) {
+    public ResponseEntity<Object> saveNewUsers(@RequestBody UserEntity userEntity) {
         if(userEntity!=null){
             if(userService.saveNewAll(userEntity))
                 return ResponseEntity.status(HttpStatus.CREATED).body(userEntity);
@@ -41,5 +42,11 @@ public class PublicController {
             }
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body can't be null");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> userLogin(@RequestBody UserEntity userEntity){
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.verify(userEntity));
     }
 }
