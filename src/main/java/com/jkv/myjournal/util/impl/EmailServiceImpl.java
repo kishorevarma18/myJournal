@@ -17,18 +17,13 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     public void sendEmail(String to, String subject, String body) {
-        try{
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            log.info("Sending email to: {}", to);
-            javaMailSender.send(message);
-            log.info("Email sent successfully to {}", to);
-        }
-        catch(Exception e){
-            log.error("Failed to send email to {}: {}", to, e.getMessage());
-        }
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
+        log.info("Sending email to: {}", to);
+        javaMailSender.send(message);
+        log.info("Email sent successfully to {}", to);
     }
 
 }
